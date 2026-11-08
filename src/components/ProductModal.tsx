@@ -11,7 +11,7 @@ import {
   ImageOff,
 } from 'lucide-react';
 import { Product, StoreConfig } from '../types';
-import { fp, ytEmbed } from '../utils/csv';
+import { fp, getVideoInfo } from '../utils/csv';
 
 interface ProductModalProps {
   product: Product | null;
@@ -63,7 +63,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     product.precoPromo! < product.preco;
 
   const displayPrice = hasPromo ? product.precoPromo! : product.preco;
-  const videoEmbedUrl = ytEmbed(product.video);
+  const videoInfo = getVideoInfo(product.video);
 
   const handleCopyCoupon = () => {
     if (!product.cupom) return;
@@ -239,15 +239,58 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             )}
 
             {/* Video Preview */}
-            {videoEmbedUrl && (
-              <div className="mb-5 rounded-xl overflow-hidden aspect-video bg-black shadow-inner">
-                <iframe
-                  src={videoEmbedUrl}
-                  title="Vídeo do produto"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full border-0"
-                />
+            {videoInfo && (
+              <div className="mb-5">
+                {videoInfo.type === 'youtube' && videoInfo.embedUrl && (
+                  <div className="rounded-xl overflow-hidden aspect-video bg-black shadow-inner">
+                    <iframe
+                      src={videoInfo.embedUrl}
+                      title="Vídeo do produto"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full border-0"
+                    />
+                  </div>
+                )}
+
+                {videoInfo.type === 'direct' && videoInfo.embedUrl && (
+                  <div className="rounded-xl overflow-hidden aspect-video bg-black shadow-inner">
+                    <video
+                      controls
+                      src={videoInfo.embedUrl}
+                      className="w-full h-full object-contain"
+                    >
+                      Seu navegador não suporta a reprodução deste vídeo.
+                    </video>
+                  </div>
+                )}
+
+                {videoInfo.type === 'external' && (
+                  <a
+                    href={videoInfo.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between gap-3 p-3.5 rounded-xl border border-[#E0DED9] bg-gradient-to-r from-neutral-900 to-neutral-800 text-white hover:from-black hover:to-neutral-900 transition-all shadow-sm hover:shadow-md"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-[#EE4D2D] flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform">
+                        <Play className="w-5 h-5 fill-white text-white ml-0.5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-[#EE4D2D]">
+                          Vídeo Demonstrativo {videoInfo.platform ? `· ${videoInfo.platform}` : ''}
+                        </div>
+                        <div className="text-xs sm:text-sm font-semibold text-white truncate">
+                          {videoInfo.label}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 group-hover:bg-white/25 text-xs font-bold text-white transition shrink-0 border border-white/20">
+                      <span>Assistir</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </div>
+                  </a>
+                )}
               </div>
             )}
           </div>

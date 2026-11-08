@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ImageOff, Sparkles } from 'lucide-react';
+import { ImageOff, Sparkles, Play } from 'lucide-react';
 import { Product } from '../types';
 import { fp, ofertaExpiraEmBreve } from '../utils/csv';
 
@@ -85,6 +85,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect, fea
         {isLimited && (
           <span className="absolute bottom-2.5 left-2.5 z-10 bg-[#B45309] text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">
             Oferta Relâmpago
+          </span>
+        )}
+
+        {/* Video indicator badge */}
+        {Boolean(product.video) && (
+          <span className="absolute bottom-2.5 right-2.5 z-10 bg-black/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+            <Play className="w-2.5 h-2.5 fill-white" />
+            <span>Vídeo</span>
           </span>
         )}
       </div>

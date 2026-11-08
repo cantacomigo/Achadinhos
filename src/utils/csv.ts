@@ -103,10 +103,79 @@ export function fixImg(url: string | undefined): string {
   return trimmed;
 }
 
+export function getYouTubeEmbedUrl(url: string | undefined): string | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+
+  // youtu.be/ID
+  const shortMatch = trimmed.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
+
+  // youtube.com/shorts/ID
+  const shortsMatch = trimmed.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
+  if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}`;
+
+  // youtube.com/embed/ID
+  const embedMatch = trimmed.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+  if (embedMatch) return `https://www.youtube.com/embed/${embedMatch[1]}`;
+
+  // youtube.com/watch?v=ID (or with other params in query)
+  const watchMatch = trimmed.match(/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/);
+  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
+
+  // general regex fallback
+  const m = trimmed.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{6,})/);
+  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+}
+
 export function ytEmbed(url: string | undefined): string {
-  if (!url) return '';
-  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
-  return m ? 'https://www.youtube.com/embed/' + m[1] : '';
+  return getYouTubeEmbedUrl(url) || '';
+}
+
+export interface VideoInfo {
+  type: 'youtube' | 'direct' | 'external';
+  embedUrl?: string;
+  url: string;
+  label?: string;
+  platform?: string;
+}
+
+export function getVideoInfo(url: string | undefined): VideoInfo | null {
+  if (!url || !url.trim()) return null;
+  const trimmed = url.trim();
+
+  const ytUrl = getYouTubeEmbedUrl(trimmed);
+  if (ytUrl) {
+    return { type: 'youtube', embedUrl: ytUrl, url: trimmed, label: 'Assistir no YouTube' };
+  }
+
+  if (trimmed.match(/\.(mp4|webm|ogg)(\?.*)?$/i)) {
+    return { type: 'direct', embedUrl: trimmed, url: trimmed };
+  }
+
+  const isShopee = trimmed.includes('shopee.com') || trimmed.includes('s.shopee');
+  const isTikTok = trimmed.includes('tiktok.com');
+  const isInstagram = trimmed.includes('instagram.com');
+
+  let label = 'Assistir vídeo do produto';
+  let platform = 'Vídeo';
+  if (isShopee) {
+    label = 'Assistir Vídeo na Shopee';
+    platform = 'Shopee';
+  } else if (isTikTok) {
+    label = 'Assistir Vídeo no TikTok';
+    platform = 'TikTok';
+  } else if (isInstagram) {
+    label = 'Assistir Vídeo no Instagram';
+    platform = 'Instagram';
+  }
+
+  return {
+    type: 'external',
+    url: trimmed,
+    label,
+    platform,
+  };
 }
 
 export function nameToHex(name: string): string | null {
