@@ -16,7 +16,7 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
   planilha_catalogo:
     'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnvhLksflgSQ--BcLoeejHNOYuxHLfEynTEWiRwdwqbOlrasROeqV_i1HlR__GmMWQ1zq_kqn_ChJP/pub?gid=952991100&single=true&output=csv',
   registrar_cliques:
-    'https://script.google.com/macros/s/AKfycbyLjLrtrWAJcsyEGwqvt1dz7rXhMafY03qjBDQv6Zk4eTid2o88td0fT5y3kgYCgJnkSw/exec',
+    'https://script.google.com/macros/s/AKfycbz-moZ9CxdzeZ23nITK_OI_wU9oot4m-Ipvdcb-AOatbetZ0F8Ajda4UiNwNjBKuLNb/exec',
 };
 
 const STORAGE_KEY = 'planiloja_app_config';
