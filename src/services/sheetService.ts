@@ -12,9 +12,9 @@ import {
 
 export const DEFAULT_APP_CONFIG: AppConfig = {
   planilha_configuracoes:
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vQH064NRkyljyAKXMj4N1JYVvzXSLNMsWN_ctB-L3kWxu_7ouuwDbOPXxeaPXx0VmpIdZsot2ZCda_8/pub?gid=480609827&single=true&output=csv',
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnvhLksflgSQ--BcLoeejHNOYuxHLfEynTEWiRwdwqbOlrasROeqV_i1HlR__GmMWQ1zq_kqn_ChJP/pub?gid=480609827&single=true&output=csv',
   planilha_catalogo:
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vQH064NRkyljyAKXMj4N1JYVvzXSLNMsWN_ctB-L3kWxu_7ouuwDbOPXxeaPXx0VmpIdZsot2ZCda_8/pub?gid=952991100&single=true&output=csv',
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnvhLksflgSQ--BcLoeejHNOYuxHLfEynTEWiRwdwqbOlrasROeqV_i1HlR__GmMWQ1zq_kqn_ChJP/pub?gid=952991100&single=true&output=csv',
   registrar_cliques:
     'https://script.google.com/macros/s/AKfycbyLjLrtrWAJcsyEGwqvt1dz7rXhMafY03qjBDQv6Zk4eTid2o88td0fT5y3kgYCgJnkSw/exec',
 };
@@ -22,20 +22,27 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
 const STORAGE_KEY = 'planiloja_app_config';
 
 export function getAppConfig(): AppConfig {
+  const win = typeof window !== 'undefined' ? (window as unknown as { ACHADINHOS?: Partial<AppConfig> }) : undefined;
+  const baseConfig: AppConfig = {
+    planilha_configuracoes: win?.ACHADINHOS?.planilha_configuracoes || DEFAULT_APP_CONFIG.planilha_configuracoes,
+    planilha_catalogo: win?.ACHADINHOS?.planilha_catalogo || DEFAULT_APP_CONFIG.planilha_catalogo,
+    registrar_cliques: win?.ACHADINHOS?.registrar_cliques || DEFAULT_APP_CONFIG.registrar_cliques,
+  };
+
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
       return {
-        planilha_configuracoes: parsed.planilha_configuracoes || DEFAULT_APP_CONFIG.planilha_configuracoes,
-        planilha_catalogo: parsed.planilha_catalogo || DEFAULT_APP_CONFIG.planilha_catalogo,
-        registrar_cliques: parsed.registrar_cliques || DEFAULT_APP_CONFIG.registrar_cliques,
+        planilha_configuracoes: parsed.planilha_configuracoes || baseConfig.planilha_configuracoes,
+        planilha_catalogo: parsed.planilha_catalogo || baseConfig.planilha_catalogo,
+        registrar_cliques: parsed.registrar_cliques || baseConfig.registrar_cliques,
       };
     }
   } catch (e) {
     console.error('Error reading saved config', e);
   }
-  return DEFAULT_APP_CONFIG;
+  return baseConfig;
 }
 
 export function saveAppConfig(cfg: AppConfig): void {
@@ -98,7 +105,14 @@ export async function fetchStoreConfig(csvUrl: string): Promise<StoreConfig> {
     else if (field === 'CNPJ') cfg.cnpj = val;
     else if (field === 'ENDERECO' || field === 'ENDEREÇO' || field === 'ENDERECO DA LOJA' || field === 'ENDEREÇO DA LOJA') cfg.endereco = val;
     else if (field === 'EMAIL' || field === 'EMAIL DE CONTATO') cfg.email = val;
-    else if (field === 'CANAL WHATSAPP' || (field === 'WHATSAPP' && !cfg.canalWhatsapp)) cfg.canalWhatsapp = val;
+    else if (field === 'CANAL WHATSAPP' || (field === 'WHATSAPP' && !cfg.canalWhatsapp)) {
+      if (val && !val.startsWith('http://') && !val.startsWith('https://')) {
+        const cleanNumber = val.replace(/\D/g, '');
+        cfg.canalWhatsapp = `https://wa.me/${cleanNumber}`;
+      } else {
+        cfg.canalWhatsapp = val;
+      }
+    }
     else if (field === 'CANAL TELEGRAM') cfg.canalTelegram = val;
     else if (field === 'BOTÃO CANAL FLUTUANTE' || field === 'BOTAO CANAL FLUTUANTE') cfg.botaoCanalFlutuante = val.toUpperCase() === 'SIM';
     else if (field === 'TEXTO DISCLOSURE') cfg.textoDisclosure = val;
