@@ -83,7 +83,7 @@ export async function fetchStoreConfig(csvUrl: string): Promise<StoreConfig> {
     if (field.includes('DADOS DA LOJA') || field.includes('PERSONALIZAÇÃO') || field.includes('CANAL DE OFERTAS') || field.includes('AVISOS')) continue;
 
     if (field === 'NOME DA LOJA') cfg.storeName = val;
-    else if (field === 'LOGO (URL)') cfg.logo = val;
+    else if (field === 'LOGO (URL)') cfg.logo = fixImg(val);
     else if (field === 'INSTAGRAM') cfg.instagram = val;
     else if (field === 'FACEBOOK') cfg.facebook = val;
     else if (field === 'TIKTOK') cfg.tiktok = val;
@@ -91,7 +91,7 @@ export async function fetchStoreConfig(csvUrl: string): Promise<StoreConfig> {
     else if (field === 'GOOGLE ANALYTICS') cfg.googleAnalytics = val;
     else if (field === 'GOOGLE ADS') cfg.googleAds = val;
     else if (field === 'COR PRIMÁRIA' || field === 'COR PRIMARIA') cfg.corPrimaria = val;
-    else if (field === 'BANNER (URL)') cfg.bannerUrl = val;
+    else if (field === 'BANNER (URL)') cfg.bannerUrl = fixImg(val);
     else if (field === 'BANNER LINK') cfg.bannerLink = val;
     else if (field === 'BANNER TAG') cfg.bannerTag = val;
     else if (field === 'BANNER TÍTULO' || field === 'BANNER TITULO') cfg.bannerTitulo = val;
@@ -127,7 +127,7 @@ export async function fetchStoreConfig(csvUrl: string): Promise<StoreConfig> {
 
   return {
     storeName,
-    logo: cfg.logo || '',
+    logo: fixImg(cfg.logo || ''),
     instagram: cfg.instagram || '',
     facebook: cfg.facebook || '',
     tiktok: cfg.tiktok || '',
@@ -136,7 +136,7 @@ export async function fetchStoreConfig(csvUrl: string): Promise<StoreConfig> {
     googleAds: cfg.googleAds || '',
     corPrimaria: primaryHex,
     corSecundaria,
-    bannerUrl: cfg.bannerUrl || '',
+    bannerUrl: fixImg(cfg.bannerUrl || ''),
     bannerLink: cfg.bannerLink || '',
     bannerTag: cfg.bannerTag || '',
     bannerTitulo: cfg.bannerTitulo || '',
