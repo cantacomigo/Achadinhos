@@ -1,0 +1,6 @@
+{
+  "name": "Planiloja Achadinhos",
+  "description": "Vitrine online de achadinhos, ofertas e cupons de afiliados conectada diretamente ao Google Planilhas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
